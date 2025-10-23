@@ -1,9 +1,16 @@
+# pip install tensorflow==2.12.0
+
 import numpy as np
 from tensorflow.keras.models import Model, Sequential
 from tensorflow.keras.layers import Dense, Dropout, Input, Flatten
 from tensorflow.keras.applications import InceptionV3
 from tensorflow.keras.utils import to_categorical
 import pickle
+from tensorflow.keras.applications import InceptionV3
+from tensorflow.keras.layers import GlobalAveragePooling2D, Dense, Dropout
+from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
 
 base = InceptionV3(weights='imagenet', include_top=False, input_shape=(299,299,3))
 # Use global average pooling to reduce dims
@@ -54,9 +61,8 @@ clf.compile(optimizer=Adam(1e-4),
 
 # Updated ModelCheckpoint for Keras 3.x
 callbacks = [
-    ModelCheckpoint("/kaggle/working/inceptionv3_oct_feat.weights.h5",   # ✅ updated extension
+    ModelCheckpoint("/kaggle/working/inceptionv3_oct_feat.hdf5",
                     save_best_only=True,
-                    save_weights_only=True,              # ✅ important for .h5
                     monitor='val_accuracy')
 ]
 
@@ -76,7 +82,7 @@ clf.save_weights("/kaggle/working/inceptionv3_oct_feat_final.weights.h5")
 with open("/kaggle/working/labels_inceptionv3_oct.pkl", "wb") as f:
     pickle.dump(extract_gen.class_indices, f)
 
-print("Training complete.")
+print("✅ Training complete.")
 print(" - Best weights: inceptionv3_oct_feat.weights.h5")
 print(" - Final weights: inceptionv3_oct_feat_final.weights.h5")
 print(" - Label map: labels_inceptionv3_oct.pkl")

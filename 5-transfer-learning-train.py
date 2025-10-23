@@ -1,3 +1,6 @@
+# pip install tensorflow==2.12.0
+
+
 import os
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.applications.inception_v3 import preprocess_input
@@ -48,9 +51,8 @@ for layer in base.layers:
 model.compile(optimizer=Adam(1e-3), loss='categorical_crossentropy', metrics=['accuracy'])
 
 callbacks = [
-    ModelCheckpoint("/kaggle/working/inceptionv3_oct_transfer.weights.h5", 
+    ModelCheckpoint("/kaggle/working/inceptionv3_oct_transfer_initial.hdf5", 
                     save_best_only=True, 
-                    save_weights_only=True, 
                     monitor='val_accuracy'),
     ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3),
     EarlyStopping(monitor='val_loss', patience=7, restore_best_weights=True)
@@ -58,6 +60,15 @@ callbacks = [
 
 
 history = model.fit(train_gen, validation_data=val_gen, epochs=10, callbacks=callbacks)
+
+
+callbacks = [
+    ModelCheckpoint("/kaggle/working/inceptionv3_oct_transfer_final.hdf5", 
+                    save_best_only=True, 
+                    monitor='val_accuracy'),
+    ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3),
+    EarlyStopping(monitor='val_loss', patience=7, restore_best_weights=True)
+]
 
 # Stage B: unfreeze last N layers and fine-tune
 for layer in base.layers[-100:]:  # example: unfreeze last 100 layers
